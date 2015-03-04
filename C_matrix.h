@@ -128,6 +128,8 @@ public:
     //diagonalisation (later)
     //svd (later)
     //random generation (later)
+    void random(void);
+    void randomf(void);
     //fft (later)
 
     //tools for linear system solving
