@@ -24,7 +24,7 @@
 
 \usepackage{hyperref}
 
-\title{TP contour deformable : les snakes}
+\title{TP contours d\'{e}formables : les snakes}
 \author{} %, \href{mailto:matthew.ozon@cpe.fr}{matthew.ozon@cpe.fr}
 \date{\today}
 
@@ -35,22 +35,20 @@
 \section{Introduction} 
 
 \subsection{Objectif}
-Ce TP a pour objectif de vous faire apprehender une technique de detection de contour actif : snake. Les conposantes de ce TP sont les suivantes :
+Ce TP a pour objectif de vous faire appr\'{e}hender une technique de d\'{e}tection par contours actifs : les SNAKES. Les composantes de ce TP sont les suivantes :
 \begin{itemize}
-	\item[1] Implementation C/C++ d'un algorithme de snakes
-	\item[2] Caracterisation de l'algorithme en fonction des parametres
-	\item[3] modification du modele
+	\item[1] Impl\'{e}mentation C/C++ d'un algorithme de snakes
+	\item[2] Caract\'{e}risation de l'algorithme en fonction des param\`{e}tres
+	\item[3] Modification du mod\`{e}le
 \end{itemize}
 
-\subsection{A rendre}
+\subsection{\`{A} rendre}
 
+\noindent\textbf{Consigne \`{a} observer} Le TP se fait en C/C++ pour la partie algorithmique et sous \textit{octave} pour la visualisation de l'\'{e}volution des snakes. Aucun IDE n'est impos\'{e}, cependant, si vous en utiliser un, nous conseillons fortement \textit{Qtcreator} (le fichier cmake est fourni).
 
+\noindent{\bf Consignes pour le rendu \`{a} remettre avant le 15 mars 23h55}
 
-\noindent\textbf{Consigne \`{a} observer} Le TP se fait en C/C++ pour la partie algorithmique et sous \textit{octave} pour la visualisation de l'evolution des snakes. Aucun IDE n'est impose, cependant, si vous en utiliser un, nous conseillons fortement \textit{Qtcreator} (le fichier cmake est fourni).
-
-\noindent{\bf Consignes pour le rendu a rendre avant le 15 mars 23h55}
-
-\`{A} rendre sur le \href{https://e-campus.cpe.fr}{d\'{e}p\^{o}t} sur e-campus une archive nomm\'{e}e : TP\_SNAKE\_NOM1\_NOM2.tar. Pour g\'{e}n\'{e}rer cette archive, utilisez la commande : 
+\`{A} rendre sur le \href{https://e-campus.cpe.fr/mod/assignment/view.php?id=16984}{d\'{e}p\^{o}t} sur e-campus une archive nomm\'{e}e : TP\_SNAKE\_NOM1\_NOM2.tar. Pour g\'{e}n\'{e}rer cette archive, utilisez la commande : 
 \begin{center} 
 	\textit{tar -cvf TP\_SNAKE\_NOM1\_NOM2.tar fichier1 fichier 2... fichierN}
 \end{center}
@@ -72,68 +70,69 @@ qui vous permet d'afficher proprement du texte dans la console avec des valeurs 
 ~
 
 
-\noindent{\bf Remarque : } touts les codes et scripts doivent etre commentes.
+\noindent{\bf Remarque : } touts les codes et scripts doivent \^{e}tre comment\'{e}s.
 
 
 
 
 \section{Rappel de cours}
 \subsection{Formulation du probleme}
-\paragraph{Cahier des charges} On souhaite segmenter des objets dans une image en les entourant avec une courbe parametree fermee. On va donc utiliser les outils mathematiques lies aux courbes parametriques. On rappel qu'une courbe $(\Gamma)$ peut se parametree par l'application $\gamma$ :
+\paragraph{Cahier des charges} On souhaite segmenter des objets dans une image en les entourant avec une courbe param\'{e}tr\'{e}e ferm\'{e}e. On va donc utiliser les outils math\'{e}matiques li\'{e}s aux courbes param\'{e}triques. On rappelle qu'une courbe $(\Gamma)$ peut se paramé\'{e}trer par l'application $\gamma$ :
 \begin{align*}
 	\gamma :  [0,1] &\rightarrow \mathbb{R}^2\\
 			s &\mapsto \begin{pmatrix}\gamma_x(s)\\ \gamma_y(s)\end{pmatrix}
 \end{align*}
-ou $\gamma_x(s)$ et $\gamma_y(s)$ sont les coordonnees de la courbe. 
+ou $\gamma_x(s)$ et $\gamma_y(s)$ sont les coordonn\'{e}es de la courbe. 
 
-\paragraph{Une courbe avec de bonnes proprietes} Deux proprietes sont desirees pour un courbe : la continuite et la regularite (lisse). La continuite se traduit par une norme de la derivee qui doit etre fini et la regularitee impose des derivees secondes fini en norme. Pour definir une energie penalisant les mauvaise configuration $\Gamma$, on ajoute toute les petites contributions de la norme de la derivee et de la derivee seconde sur le long de la courbe en ponderant les deux termes : 
+
+\paragraph{Une courbe avec de bonnes propri\'{e}t\'{e}s} Deux propri\'{e}t\'{e}s sont désir\'{e}es pour une courbe : la continuit\'{e} et la r\'{e}gularit\'{e} (lisse). La continuit\'{e} se traduit par une norme de la dériv\'{e}e qui doit \^{e}tre fini et la r\'{e}gularit\'{e} impose des derivees secondes de normes finies. Pour d\'{e}finir une \'{e}nergie p\'{e}nalisant les mauvaises configurations de $\Gamma$, on ajoute toutes les petites contributions de la norme de la d\'{e}riv\'{e}e et de la d\'{e}riv\'{e}e seconde sur le long de la courbe en pond\'{e}rant les deux termes : 
 \begin{displaymath}
 	\mathcal{E}_{\text{int}}(\gamma) = \int_{0}^{1} \frac{1}{2} \left(\lambda_1 \|\gamma'(s) \|_{2}^{2} + \lambda_2 \|\gamma''(s) \|_{2}^{2}\right) \mathrm{d}s
 \end{displaymath}
-avec $\lambda_1$ et $\lambda_2$ des reels ponderant les effets de chaque terme.
+avec $\lambda_1$ et $\lambda_2$ des r\'{e}els positifs modulant les effets de chaque terme.
 
-\paragraph{Collage au contour...} Une autre bonne propriete de la courbe est quelle soit collee aux contour des objets que l'on souhaite segmenter. Pour cela, on cherche un critere qui se minimise lorsaue la courbe vient se position nne sur le contour de l'objet segmente. Plusieurs solutions sont possibles, parmis lequelles on tourve : 
+\paragraph{Collage aux contours...} Une autre bonne propri\'{e}t\'{e} de la courbe est quelle soit coll\'{e}e aux contours des objets que l'on souhaite segmenter. Pour cela, on cherche un crit\`{e}re qui se minimise lorsque la courbe vient se positionn\'{e}e sur le contour de l'objet \`{a} segment\'{e}. Plusieurs solutions sont possibles, parmi lesquelles on trouve : 
 \begin{itemize}
-	\item[1] la norme du gradient de l'image (son oppose) qui passe par un extremum sur les changements brute d'intensite qui ont tendence a representer des contours.
-	\item[2] l'image elle meme dans le cas de dessin : contours lineaires fins fonce sur fond clairs
-	\item[3] la transformee de distance dans le cas des images binaires : le gradient etant nul loin des contours (2 pixels) la courbe ne sera pas attiree par les zones de transitions, cependant, la transformee de distance est elevee lorsqu'on est loin des contours d'un objet et nul dans l'objet (point a prendre en compte pour ne pas laisse le snake se contracter en une singularite).
+	\item[1] la norme du gradient de l'image (son oppos\'{e}) qui passe par un extremum sur les changements brusque d'intensit\'{e}s qui ont tendances \`{a} repr\'{e}senter des contours,
+	\item[2] l'image elle m\^{e}me dans le cas de dessins : contours lin\'{e}aires fins fonc\'{e}s sur fond clair,
+	\item[3] la transform\'{e}e de distance dans le cas des images binaires : le gradient \'{e}tant nul loin des contours (2 pixels) la courbe ne sera pas attir\'{e}e par les zones de transitions, cependant, la transform\'{e}e de distance est \'{e}lev\'{e}e lorsqu'on est loin des contours d'un objet et nulle dans l'objet (point \~{a} prendre en compte pour ne pas laisser le snake se contracter en une singularit\'{e}).
 \end{itemize}
-Pour le premier cas, on defini l'energie externe comme la contribution de tout les lieux de la courbe pondere par la valeur de la norme du gradient (la circulation du gradient le long de la courbe), et on l'ecrit : 
+Pour le premier cas, on d\'{e}finit l'\'{e}nergie externe comme la contribution de touts les lieux de la courbe pond\'{e}r\'{e}s par la valeur de la norme du gradient au carr\'{e}e (circulation le long de la courbe), et on l'\'{e}crit : 
 \begin{displaymath}
 	\mathcal{E}_{\text{ext}}(\gamma) = \int_{0}^{1} - \lambda_3    \left( \frac{\partial \text{I}}{\partial x}^{2} + \frac{\partial \text{I}}{\partial y} ^{2} \right)(\gamma ) \mathrm{d}s
 \end{displaymath}
-avec $\lambda_3$ un reel positif ponderant la contribution de l'energie liee a l'image.
+avec $\lambda_3$ un r\'{e}el positif pond\'{e}rant la contribution de l'\'{e}nergie li\'{e}e \`{a} l'image.
 
-Au total, nous avons la formulation suivante de l'enegie : 
-\begin{align*}
+Au total, nous avons la formulation suivante de l'\'{e}nergie : 
+\begin{eqnarray}\label{fonctionnelle}
 	\mathcal{E}_{\text{tot}}(\gamma) =& \int_{0}^{1} \frac{1}{2} \left(\lambda_1 \|\gamma'(s) \|_{2}^{2} + \lambda_2 \|\gamma''(s) \|_{2}^{2}\right)  - \lambda_3    \left( \frac{\partial \text{I}}{\partial x}^{2} + \frac{\partial \text{I}}{\partial y}^{2} \right)(\gamma) \mathrm{d}s\\
-	= & \int_{0}^{1} \text{E}_{\text{int}}(\gamma',\gamma'') + \text{E}_{\text{int}}(\gamma) \mathrm{d}s
-\end{align*}
-Pour minimiser $\mathcal{E}_{\text{tot}}$, nous allons avoir recours aux equations d'Euler-Lagrange.
+	= & \int_{0}^{1} \text{E}_{\text{int}}(\gamma',\gamma'') + \text{E}_{\text{ext}}(\gamma) \mathrm{d}s
+\end{eqnarray}
+Pour minimiser $\mathcal{E}_{\text{tot}}$, nous allons avoir recours aux \'{e}quations d'\href{https://e-campus.cpe.fr/file.php/2552/Cours\_Meca.pdf}{Euler-Lagrange}.
 
 
 
 \subsection{Minimisation de fonctionnelle par equation d'Euler-Lagrange}
-On entend par fonctionnelle la generalisation des fonctions aux domaine des fonction. Par exemple, si $f$ est une fonction de $\mathcal{C}^\infty(\mathbb{R}^n,\mathbb{R}^m)$ l'espace des fonction continue de $\mathbb{R}^n$ dans $\mathbb{R}^m$, alors $G(f,f',f'')=f+f'+f''$ est une fonctionnelle. Dans notre cas, la fonctionnelle est $\mathcal{E}$. Pour cette definition integrale, les eauqtions d'Euler-Lagrange donne un critere pour minimiser la fonctionnelle $\mathcal{E}$ qui est :
+On entend par fonctionnelle la generalisation des fonctions aux domaine des fonction. Par exemple, si $f$ est une fonction de $\mathcal{C}^\infty(\mathbb{R}^n,\mathbb{R}^m)$ l'espace des fonction continue de $\mathbb{R}^n$ dans $\mathbb{R}^m$, alors $G(f,f',f'')=\|f\|+\|f'\|+\|f''\|$ est une fonctionnelle. Dans le cas d'une formulation int\'{e}grale~\eqref{fonctionnelle}, comme la fonctionnelle $\mathcal{E}_{\text{tot}}$, les \'{e}quations d'Euler-Lagrange donnent un crit\`{e}re pour minimiser en fonction de la courbe $\Gamma$ qui est :
 \begin{displaymath}
-	\gamma\in\underset{\gamma\in\mathcal{C}^{\infty}([0,1],\mathbb{R}^2)}{\arg\min}\int_{0}^{1} \text{E}_{\text{tot}}(\gamma,\gamma',\gamma'')  \mathrm{d}s \quad\text{    tel que     }\quad \frac{\partial E_{\text{tot}}}{\partial \gamma} -\frac{\mathrm{d}}{\mathrm{d}s}\left(\frac{\partial E_{\text{tot}}}{\partial \gamma'}\right) + \frac{\mathrm{d}^2}{\mathrm{d}s^2}\left(\frac{\partial E_{\text{tot}}}{\partial \gamma''}\right) = 0
+	\gamma\in\underset{\gamma\in\mathcal{C}^{\infty}([0,1],\mathbb{R}^2)}{\arg\min} \mathcal{E}_{\text{tot}}(\gamma) \quad\text{    tel que     }\quad \frac{\partial E_{\text{tot}}}{\partial \gamma} -\frac{\mathrm{d}}{\mathrm{d}s}\left(\frac{\partial E_{\text{tot}}}{\partial \gamma'}\right) + \frac{\mathrm{d}^2}{\mathrm{d}s^2}\left(\frac{\partial E_{\text{tot}}}{\partial \gamma''}\right) = 0
 \end{displaymath}
-ce qui se traduit par l'equation d'equilibre suivante : 
+avec $E_{\text{tot}} = E_{\text{int}} + E_{\text{ext}}$. En traduisant directement l'\'{e}quation pr\'{e}c\'{e}dente, on trouve l'\'{e}quation d'\'{e}quilibre suivante :
 \begin{displaymath}
 	\forall s\in[0,1],\quad 0 = \lambda_1 \gamma''(s) - \lambda_2 \gamma^{(4)}(s) + \lambda_3 \nabla(\|\nabla I\|^2)
 \end{displaymath}
-Avec cette formulation, on a une condition sur la courbe lorsqu'elle est deja sur le coutour de l'objet lorsqu'elle est stationnaire, mais on ne peut pas la faire bouger. On introduit alors un autre parametre, le temps $t$, pour ecrire une equation d'evolution : 
+Avec cette formulation, on a une condition sur la courbe lorsqu'elle est d\'{e}j\`{a} sur le contour de l'objet, lorsqu'elle est stationnaire. On ne peut pas faire bouger la courbe \`{a} partir de cette \'{e}quation. On introduit alors un autre param\`{e}tre, le temps $t$, pour \'{e}crire une \'{e}quation d'\'{e}volution : 
 \begin{equation}\label{temporelContinu}
 	\forall s\in[0,1], t\in\mathbb{R}^{+},\quad \frac{\partial \gamma}{\partial t}(s,t) = \lambda_1 \frac{\partial^2 \gamma}{\partial s^2}(s,t) - \lambda_2 \frac{\partial^4 \gamma}{\partial s^4}(s,t) + \lambda_3 \nabla(\|\nabla I\|^2)(\gamma(s,t))
 \end{equation}
-On dispose donc de deux equation scalaire pour decrire l'evolution de la courbe, une pour chaque composante de la courbe.
+On dispose donc de deux \'{e}quations scalaires pour d\'{e}crire l'\'{e}volution de la courbe, une pour chacune de ses composantes.
 
-\subsection{Discretisation et evolution temporelle}
-L'equation~\eqref{temporelContinu} etant sous sa forme continue, il faut la discretiser pour la rendre utilisable. Il faut donc faire deux type de dicretisation, une temporelle et une spatiale. On notera avec un exposant $k$ les iterations temporelles et un indice $n$ les reperes spatiaux. On utilise des notation vectorielles pour les coordonnees de la courbe, $\gamma_{x}^{k}$ et $\gamma_{y}^{k}$ toutes les coordonnees discretes de la courbe a l'iteration $k$ : 
+\subsection{Discr\'{e}tisation et \'{e}volution temporelle}
+L'\'{e}quation~\eqref{temporelContinu} \'{e}tant sous sa forme continue, il faut la discr\'{e}tiser pour la rendre utilisable. Il faut donc faire deux typse de discr\'{e}tisation, une temporelle et une spatiale. On notera avec un exposant $k$ les it\'{e}rations temporelles et un indice $n$ les rep\`{e}res spatiaux. On utilise des notations vectorielles pour les coordonn\'{e}es de la courbe, $\gamma_{x}^{k}$ et $\gamma_{y}^{k}$. Ces vecteurs regroupent toutes les coordonn\'{e}es de la courbe discr\`{e}te \`{a} l'it\'{e}ration $k$ : 
 \begin{displaymath}
 	\gamma_{x}^{k} = (\gamma_{x,0}^{k},\gamma_{x,1}^{k}\ldots,\gamma_{x,N-1}^{k})^{t}, \quad\text{    et    }\quad \gamma_{y}^{k} = (\gamma_{y,0}^{k},\gamma_{y,1}^{k}\ldots,\gamma_{y,N-1}^{k})^{t}
 \end{displaymath}
-avec $N$ le nombre de point de discretisation de la courbe. A partir de ces vecteurs, on peut ecrire de facon matricielle les operations de derivations. On note la derivee seconde et quatrieme respectivement $D_2$ et $D_4$. 
+avec $N$ le nombre de point de discr\'{e}tisation de la courbe. \`{A} partir de ces vecteurs, on peut \'{e}crire de fa\c{}on matricielle les op\'{e}rations de d\'{e}rivations. On note la d\'{e}riv\'{e}e seconde et quatri\`{e}me respectivement $D_2$ et $D_4$. 
 \begin{displaymath}
 	D_2 = \begin{pmatrix}
 			 -2 & 1  & 0 & \ldots & 0 & 1\\
@@ -155,22 +154,22 @@ avec $N$ le nombre de point de discretisation de la courbe. A partir de ces vect
 			-4 & 1 &  0 & \ldots & 1 & -4 & 6\\
 		 \end{pmatrix}
 \end{displaymath}
-La discretisation temporelle se fait simplement en prenant la difference entre deux instant : 
+La discr\'{e}tisation temporelle se fait simplement en prenant la diff\'{e}rence entre deux instants : 
 \begin{displaymath}
 	\frac{\partial \gamma}{\partial t} \simeq \frac{\gamma^{k}-\gamma^{k-1}}{\Delta t}
 \end{displaymath}
-Au total, on trouve pour la composante $x$ : 
+Au total, on trouve pour chaque composante les \'{e}quations : 
 \begin{eqnarray}~\label{discreteSnake}
 	\frac{\gamma_{x}^{k}-\gamma_{x}^{k-1}}{\Delta t}=& (\lambda_1 D_2 -\lambda_2 D_4)\gamma_{x}^{k} + \lambda_3 \nabla(\|\nabla I\|^2)_{x}\\
 	\frac{\gamma_{y}^{k}-\gamma_{y}^{k-1}}{\Delta t}=& (\lambda_1 D_2 -\lambda_2 D_4)\gamma_{y}^{k} + \lambda_3 \nabla(\|\nabla I\|^2)_{y}
 \end{eqnarray}
-et donc, la formule de recurtion est
+avec $\nabla(\|\nabla I\|^2)_{x}$ et $\nabla(\|\nabla I\|^2)_{y}$ les composantes selon $x$ et $y$ de $\nabla(\|\nabla I\|^2)$. Le syst\`{e}me d'\'{e}volution liant les deux instants $k$ et $k-1$ peut s'\'{e}crire : 
 \begin{eqnarray}\label{evolutionSnakex}
 	(I+\Delta t (\lambda_2 D_4 - \lambda_1 D_2)) \gamma_{x}^{k} =&  (\gamma_{x}^{k-1} + \Delta t  \lambda_3 \nabla(\|\nabla I\|^2)_{x} )\\
 ~\label{evolutionSnakey}
 	(I+\Delta t (\lambda_2 D_4 - \lambda_1 D_2)) \gamma_{y}^{k} =&  (\gamma_{y}^{k-1} + \Delta t  \lambda_3 \nabla(\|\nabla I\|^2)_{y} )
 \end{eqnarray}
-avec $I$ la matrice identite. On obtient donc un systeme lineaire pour chaque composante de la courbe.
+avec $I$ la matrice identit\'{e}. On obtient donc un syst\`{e}me lin\'{e}aire pour chaque composante de la courbe.
 
 %\subsection{Les ameliorations possible}
 %ballon (aborde dans le TP), gradient vector flow.
@@ -180,12 +179,12 @@ avec $I$ la matrice identite. On obtient donc un systeme lineaire pour chaque co
 \clearpage
 \section{Pratique}
 \subsection{Les outils}
-Pour ce TP, on vous demande de realise les calculs en C/C++ et la visualisation avec octave. 
+Pour ce TP, on vous demande de r\'{e}alise les calculs en C/C++ et la visualisation avec \textit{octave}.
 
-Nous mettons a votre disposition une classe \textit{C\_matrix.h} pour gerer les matrices et faire des operations simples comme l'addition la soustraction, la multiplication, ainsi que des operations plus complexes comme l'inversion de matrice, la convolution, le calcul de gradient...
+Nous mettons \`{a} votre disposition une classe \textit{C\_matrix.h} pour g\'{e}rer les matrices et faire des op\'{e}rations simples comme l'addition, la soustraction, la multiplication, ainsi que des op\'{e}rations plus complexes comme l'inversion de matrice, la convolution, le calcul de gradient...
 
 \paragraph{Exemple 1}
-Exemple de code pour la creation d'une matrice: 
+Exemple de code pour la cr\'{e}ation d'une matrice: 
 \begin{verbatim}
 #include <C_matrix.h>//gestion des operations matricielles
 #include <iostream>
@@ -208,17 +207,18 @@ int main(int argc, char *argv[])
 }
 \end{verbatim}
 
-\paragraph{Exemple 2} Pour le chargement et l'affichage d'image, la classe \textit{C\_imgMatrix} qui herite de la classe \textit{C\_matrix} utilise la librairie \textit{CImg} pour charger et afficher les images. La librairie \href{http://cimg.sourceforge.net/reference/group__cimg__tutorial.html}{\textit{CImg}} peut etre installer sur votre ordinateur avec la commande 
+\paragraph{Exemple 2} Pour le chargement et l'affichage d'image, la classe \textit{C\_imgMatrix} qui h\'{e}rite de la classe \textit{C\_matrix} utilise la librairie \textit{CImg} pour charger et afficher les images. La librairie \href{http://cimg.sourceforge.net/reference/group__cimg__tutorial.html}{\textit{CImg}} peut \^{e}tre install\'{e}e sur votre ordinateur avec la commande 
 \begin{center}
 	\textit{apt-get install cimg-dev}
 \end{center}
-ou si vous n'avez pas les droits necessaires, vous pouvez cloner le repository git de \textit{CImg} en tapant la commande suivante : 
+ou, si vous n'avez pas les droits n\'{e}cessaires, vous pouvez cloner le repository git de \textit{CImg} en tapant la commande suivante : 
 \begin{center}
 	\textit{git clone http://git.code.sf.net/p/cimg/source CImg}
 \end{center}
-Remarque : \textit{git} est un gestionnaire de version. Les gestionnaire de version servent a gerer les version d'un projet et de pouvoir revenir a tout moment a une version precedente pour pouvoir retrouver un code/version qui fonctionne. Je vous recommande fortement d'utiliser des gestionnaire de version dans tout ce que vous faites. Par exemple, vous commencez un TP, vous creez un repository que vous actualiserez tout au long de la seance de sorte a ce que vous puissiez retrouver une version qui fonctionne. Pour plus d'information concernant \textit{git}, je vous renvoie vers le \href{https://github.com/}{lien} ou un autre \href{http://rogerdudler.github.io/git-guide/}{lien}.
+Remarque : \textit{git} est un gestionnaire de version. Les gestionnaires de versions servent \`{a} g\'{e}rer les versions d'un projet et de pouvoir revenir \`{a} touts moments \`{a} une version pr\'{e}c\'{e}dente pour pouvoir retrouver un code/version qui fonctionne. Je vous recommande fortement d'utiliser des gestionnaires de versions dans tout ce que vous faites. Par exemple, vous commencez un TP, vous cr\'{e}ez un repository que vous actualiserez tout au long de la s\'{e}ance de sorte \`{a} ce que vous puissiez retrouver une version qui fonctionne ou qui fait autre chose (une autre partie d'un exercice). Pour plus d'information concernant \textit{git}, je vous renvoie vers le \href{https://github.com/}{lien} ou un autre \href{http://rogerdudler.github.io/git-guide/}{lien}.
 
-Exemple de code pour charger une image a l'aide de la classe \textit{C\_imgMatrix} : 
+\clearpage
+\noindent Exemple de code pour charger une image \`{a} l'aide de la classe \textit{C\_imgMatrix} : 
 \begin{verbatim}
 #include <C_imgMatrix.h> //inclu la library de chargement d'image CImg
 #include <iostream>
@@ -242,44 +242,39 @@ int main(int argc, char *argv[])
 }
 \end{verbatim}
 
-
-
-
-presentation des classes a utiliser documentation principale et hello world
-optionel git? il faut qu'il m'envoie leur clef ssh
-\subsection{Question}
+\subsection{Questions}
 \subsubsection{Charger et afficher une image}
 Tester le chargement d'une image avec la classe \textit{C\_imgMatrix} et afficher votre image.
-\subsubsection{Effectuer des operations simple}
-Filtrez une image par un noyau gaussien (Attention! Le noyau doit etre de dimension impaire). Affichez le resultats. Affichez la valeur absolue de la difference entre l'image d'origine et l'image filtree. Sur une image binarisee, utilisez la methode \textit{bwdistEuclidean} pour calculer la carte de distance, la visualiser.
+\subsubsection{Effectuer des op\'{e}rations simple}
+Filtrez une image par un noyau gaussien (Attention! Le noyau doit \^{e}tre de dimension impaire). Affichez le r\'{e}sultats. Affichez la valeur absolue de la diff\'{e}rence entre l'image d'origine et l'image filtr\'{e}e. Sur une image binaris\'{e}e, utilisez la m\'{e}thode \textit{bwdistEuclidean} pour calculer la carte de distance, la visualiser.
 
-\subsection{Generation de deux courbes}
-Pour des soucis de simplicite conceptuelle, nous utiliserons des objets qui encoderont les points et les courbe, respectivement les classes \textit{C\_point} et \textit{C\_curve}. La classe \textit{C\_point} contient des attributs de position \textit{x} et \textit{y}, de vitesse \textit{vx} et \textit{vy} ainsi que d'energie image \textit{Px} et \textit{Py}. La classe \textit{C\_curve} contient un vecteur de point ainsi que deux methodes pour initialiser la positions des points de la courbe, une en forme de cercle, l'autre en forme de carre. Regardez rapidement de quoi sont faites ces classes avant de commencer.
-Dans la classe \textit{C\_curve}, creez deux methodes pour extraire les coordonnees x et y de la courbe et les stocker dans deux matrices colone. Creez une matrice pour calculer la derivee de la courbe, calculez la derivee et sauvegardez les resultats dans des fichiers. Calculez de l'energie interieure de la courbe au sens des snakes. Sous octave, chargez les fichiers et les afficher a l'aide des fonction \textit{load} et \textit{plot}.
+\subsection{G\'{e}n\'{e}ration de deux courbes}
+Pour des soucis de simplicit\'{e}s conceptuelles, nous utiliserons des objets qui encoderont les points et les courbes, respectivement les classes \textit{C\_point} et \textit{C\_curve}. La classe \textit{C\_point} contient des attributs de position \textit{x} et \textit{y}, de vitesse \textit{vx} et \textit{vy} ainsi que d'\'{e}nergie image \textit{Px} et \textit{Py}. La classe \textit{C\_curve} contient un vecteur de point ainsi que deux m\'{e}thodes pour initialiser la positions des points de la courbe, une en forme de cercle et l'autre en forme de carr\'{e}. Regardez rapidement de quoi sont faites ces classes avant de commencer.
+Dans la classe \textit{C\_curve}, cr\'{e}ez deux m\'{e}thodes pour extraire les coordonn\'{e}es x et y de la courbe et les stocker dans deux matrices colonnes. Cr\'{e}ez une matrice pour calculer la d\'{e}riv\'{e}e de la courbe, calculez la d\'{e}riv\'{e}e et sauvegardez les r\'{e}sultats dans des fichiers. Calculez de l'\'{e}nergie int\'{e}rieure de la courbe au sens des snakes. Sous octave, chargez les fichiers et les afficher \`{a} l'aide des fonctions \textit{load} et \textit{plot}.
 
-\subsection{Energie interieure du Snake}
-Dans la classe \textit{C\_snakes}, dont un squelette est propose, implementez deux methodes qui genere les matrices de derivation $D1$ et derivation seconde $D2$. Les deux matrice $D1$ et $D2$ sont des attributs de la classe. Creez ensuite une methode qui realise le calcul de l'energie interne de la courbe.
+\subsection{\'{E}nergie int\'{e}rieure du Snake}
+Dans la classe \textit{C\_snakes}, dont un squelette est propose, impl\'{e}mentez deux m\'{e}thodes qui g\'{e}n\`{e}rent les matrices de d\'{e}rivation $D1$ et d\'{e}rivation seconde $D2$. Les deux matrices $D1$ et $D2$ sont des attributs de la classe. Cr\'{e}ez ensuite une m\'{e}thode qui r\'{e}alise le calcul de l'\'{e}nergie interne de la courbe.
 
-\subsection{Carte d'energie exterieur}
-Dans la classe \textit{C\_snakes}, creez une methode qui calcul l'energie image en chaque point de l'image, ainsi que les composantes du gradient de l'energie image. On stockera l'energie image dans \textit{imgEnergy} et les composante du gradient dans les attributs \textit{PX} et \textit{PY}.
+\subsection{Carte d'\'{e}nergie ext\'{e}rieure}
+Dans la classe \textit{C\_snakes}, cr\'{e}ez une m\'{e}thode qui calcule l'\'{e}nergie image en chaque point de l'image, ainsi que les composantes du gradient de $E_{\text{ext}}$ (\'{e}nergie image). On stockera l'\'{e}nergie image dans \textit{imgEnergy} et les composantes du gradient dans les attributs \textit{PX} et \textit{PY}.
 
 %image generale : gradient de la norme du gradient de l'image
 %image de trait : l'image elle meme (ecriture foncee sur page blanche)
 %image binaire : transformee de distance.
 
-\subsection{Evolution temporelle du snake}
-Creez une methode qui genere la matrice de derivee $4^{\text{\`eme}}$ $D4$. Implementez une methode qui genere le systeme defini a l'equation~\eqref{evolutionSnakex} et~\eqref{evolutionSnakey}  et qui stocke l'inversion du systeme dans la matrice Ainv. Creez une methode qui met a jour les attributs Px et Py de chaque points de la courbe. Implementez deux methodes qui retourne les second menbre des equations~\eqref{evolutionSnakex} et~\eqref{evolutionSnakey}. Pour faire evoluer la courbe depuis un point de depart fixe, definissez une methodes qui initialise tout les elements necessaire a l'evolution, puis creez une methode qui encode une pas temporelle de l'evolution du snake. Enfin, rassemblez tout les elements pour code auparavant de sorte a ce qu'une seule methode soit appellee dans le \textit{main}. 
+\subsection{\'{E}volution temporelle du snake}
+Cr\'{e}ez une m\'{e}thode qui g\'{e}n\`{e}re la matrice de d\'{e}riv\'{e}e $4^{\text{\`eme}}$ $D4$. Impl\'{e}mentez une m\'{e}thode qui g\'{e}n\`{e}re le syst\`{e}me d\'{e}fini \`{a} l'\'{e}quation~\eqref{evolutionSnakex} et~\eqref{evolutionSnakey}  et qui stocke l'inversion du syst\`{e}me dans la matrice Ainv. Cr\'{e}ez une methode qui met \`{a} jour les attributs Px et Py de chaque points de la courbe. Impl\'{e}mentez deux m\'{e}thodes qui retournent les seconds membres des \'{e}quations~\eqref{evolutionSnakex} et~\eqref{evolutionSnakey}. Pour faire \'{e}voluer la courbe depuis un point de d\'{e}part fixe, d\'{e}finissez une m\'{e}thode qui initialise tout les \'{e}l\'{e}ments n\'{e}cessaire \`{a} l'\'{e}volution, puis cr\'{e}ez une m\'{e}thode qui encode un pas temporel de l'\'{e}volution du snake. Enfin, rassemblez tout les \'{e}l\'{e}ments cod\'{e}s auparavant de sorte \`{a} ce qu'une seule m\'{e}thode soit appel\'{e}e dans le \textit{main}. 
 
-Testez votre code sur les images qui vous sont fournies et determinez les parametres $\lambda_1$, $\lambda_2$, $\lambda_3$ et $\mathrm{d}t$ pour ces images. Visualisez les effets de chaque parametre pour les differentes images. Montrez l'evolution du snake et de l'energie totale en fonction du temps.
+Testez votre code sur les images qui vous sont fournies et d\'{e}terminez les param\`{e}tres $\lambda_1$, $\lambda_2$, $\lambda_3$ et $\mathrm{d}t$ pour ces images. Visualisez les effets de chaque param\`{e}tre pour les diff\'{e}rentes images. Montrez l'\'{e}volution du snake et de l'\'{e}nergie totale en fonction du temps.
 
-sur les differentes images, faire evoluer le snake et trouver des bons parametres pour trouver les contours desires
+sur les diff\'{e}rentes images, faire \'{e}voluer le snake et trouver des bons param\`{e}tres pour trouver les contours d\'{e}sir\'{e}s.
 
 \subsection{Pour aller plus loin}
-Si vous avez le temps pendant la seance de TP, vous pouvez explorer les pistes suivantes : 
+Si vous avez le temps pendant la s\'{e}ance de TP, vous pouvez explorer les pistes suivantes : 
 \begin{itemize}
-	\item[1] Changez la forme de l'energie interieure
-	\item[2] Appliquez une force de pression sur le snake en ajoutant une force exterieure selon la normale a la courbe. Vous povez vous referez a l'article \href{http://ac.els-cdn.com/104996609190028N/1-s2.0-104996609190028N-main.pdf?_tid=8cc41376-c1ff-11e4-a8e9-00000aab0f26&acdnat=1425426585_a1dae6c4928c4fa3bc99d9bffe5d920c}{On active contour models and ballons}
-	\item[3] Pour arriver a detecter les contours dans une forme concave, vous pouvez utiliser une technique qui consiste a faire evoluer le snake dans un champ de vecteur. Vous pouvez vous referer a la publication \href{http://www-artemis.it-sudparis.eu/~rougon/IMA4509/Controle/Sujets/Xu-IP-1998.pdf}{Snakes, shapes, and gradient vector flow}
+	\item[1] Changez la forme de l'\'{e}nergie int\'{e}rieure
+	\item[2] Appliquez une force de pression sur le snake en ajoutant une force ext\'{e}rieure selon la normale \`{a} la courbe. Vous pouvez vous referez \`{a} l'article \href{http://ac.els-cdn.com/104996609190028N/1-s2.0-104996609190028N-main.pdf?_tid=8cc41376-c1ff-11e4-a8e9-00000aab0f26&acdnat=1425426585_a1dae6c4928c4fa3bc99d9bffe5d920c}{On active contour models and ballons}
+	\item[3] Pour arriver \`{a} detecter les contours dans une forme concave, vous pouvez utiliser une technique qui consiste \`{a} faire \'{e}voluer le snake dans un champ de vecteur. Vous pouvez vous r\'{e}f\'{e}rer \`{a} la publication \href{http://www-artemis.it-sudparis.eu/~rougon/IMA4509/Controle/Sujets/Xu-IP-1998.pdf}{Snakes, shapes, and gradient vector flow}
 \end{itemize}
 %essaye de faire evoluer le snake sur les contour de l'objet
 %Pour eviter de rester coincer sur de petites aretes non significative, on decide d'introduire une force de pression exterieur qui est appliquee sur la normale de la courbe
