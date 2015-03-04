@@ -1343,7 +1343,31 @@ template<class dataType> C_matrix<dataType> C_matrix<dataType>::gradY(void)
     }
     return tmp;
 }
+template<class dataType> void C_matrix<dataType>::random(void)
+{
+    srand(time(NULL));
+    for(unsigned long i=0 ; i<m_L ; i++)
+    {
+        for(unsigned long j=0 ; j<m_C ; j++)
+        {
+            m_A[i][j] = (dataType) rand();
+        }
+    }
+    return;
+}
 
+template<class dataType> void C_matrix<dataType>::randomf(void)
+{
+    srand(time(NULL));
+    for(unsigned long i=0 ; i<m_L ; i++)
+    {
+        for(unsigned long j=0 ; j<m_C ; j++)
+        {
+            m_A[i][j] = (dataType) (((double) rand())/((double) RAND_MAX));
+        }
+    }
+    return;
+}
 template<class dataType> void C_matrix<dataType>::meshRow(dataType minValue, dataType maxValue)
 {
     if(minValue>=maxValue)
