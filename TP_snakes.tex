@@ -77,7 +77,7 @@ qui vous permet d'afficher proprement du texte dans la console avec des valeurs 
 
 \section{Rappel de cours}
 \subsection{Formulation du probleme}
-\paragraph{Cahier des charges} On souhaite segmenter des objets dans une image en les entourant avec une courbe param\'{e}tr\'{e}e ferm\'{e}e. On va donc utiliser les outils math\'{e}matiques li\'{e}s aux courbes param\'{e}triques. On rappelle qu'une courbe $(\Gamma)$ peut se paramé\'{e}trer par l'application $\gamma$ :
+\paragraph{Cahier des charges} On souhaite segmenter des objets dans une image en les entourant avec une courbe param\'{e}tr\'{e}e ferm\'{e}e. On va donc utiliser les outils math\'{e}matiques li\'{e}s aux courbes param\'{e}triques. On rappelle qu'une courbe $(\Gamma)$ peut se param\'{e}trer par l'application $\gamma$ :
 \begin{align*}
 	\gamma :  [0,1] &\rightarrow \mathbb{R}^2\\
 			s &\mapsto \begin{pmatrix}\gamma_x(s)\\ \gamma_y(s)\end{pmatrix}
@@ -85,13 +85,13 @@ qui vous permet d'afficher proprement du texte dans la console avec des valeurs 
 ou $\gamma_x(s)$ et $\gamma_y(s)$ sont les coordonn\'{e}es de la courbe. 
 
 
-\paragraph{Une courbe avec de bonnes propri\'{e}t\'{e}s} Deux propri\'{e}t\'{e}s sont désir\'{e}es pour une courbe : la continuit\'{e} et la r\'{e}gularit\'{e} (lisse). La continuit\'{e} se traduit par une norme de la dériv\'{e}e qui doit \^{e}tre fini et la r\'{e}gularit\'{e} impose des derivees secondes de normes finies. Pour d\'{e}finir une \'{e}nergie p\'{e}nalisant les mauvaises configurations de $\Gamma$, on ajoute toutes les petites contributions de la norme de la d\'{e}riv\'{e}e et de la d\'{e}riv\'{e}e seconde sur le long de la courbe en pond\'{e}rant les deux termes : 
+\paragraph{Une courbe avec de bonnes propri\'{e}t\'{e}s} Deux propri\'{e}t\'{e}s sont d\'{e}sir\'{e}es pour une courbe : la continuit\'{e} et la r\'{e}gularit\'{e} (lisse). La continuit\'{e} se traduit par une norme de la d\'{e}riv\'{e}e qui doit \^{e}tre fini et la r\'{e}gularit\'{e} impose des d\'{e}riv\'{e}es secondes de normes finies. Pour d\'{e}finir une \'{e}nergie p\'{e}nalisant les mauvaises configurations de $\Gamma$, on ajoute toutes les petites contributions de la norme de la d\'{e}riv\'{e}e et de la d\'{e}riv\'{e}e seconde sur le long de la courbe en pond\'{e}rant les deux termes : 
 \begin{displaymath}
 	\mathcal{E}_{\text{int}}(\gamma) = \int_{0}^{1} \frac{1}{2} \left(\lambda_1 \|\gamma'(s) \|_{2}^{2} + \lambda_2 \|\gamma''(s) \|_{2}^{2}\right) \mathrm{d}s
 \end{displaymath}
 avec $\lambda_1$ et $\lambda_2$ des r\'{e}els positifs modulant les effets de chaque terme.
 
-\paragraph{Collage aux contours...} Une autre bonne propri\'{e}t\'{e} de la courbe est quelle soit coll\'{e}e aux contours des objets que l'on souhaite segmenter. Pour cela, on cherche un crit\`{e}re qui se minimise lorsque la courbe vient se positionn\'{e}e sur le contour de l'objet \`{a} segment\'{e}. Plusieurs solutions sont possibles, parmi lesquelles on trouve : 
+\paragraph{Collage aux contours...} Une autre bonne propri\'{e}t\'{e} de la courbe est quelle soit coll\'{e}e aux contours des objets que l'on souhaite segmenter \textbf{dans l'image I}. Pour cela, on cherche un crit\`{e}re qui se minimise lorsque la courbe vient se positionn\'{e}e sur le contour de l'objet \`{a} segment\'{e}. Plusieurs solutions sont possibles, parmi lesquelles on trouve : 
 \begin{itemize}
 	\item[1] la norme du gradient de l'image (son oppos\'{e}) qui passe par un extremum sur les changements brusque d'intensit\'{e}s qui ont tendances \`{a} repr\'{e}senter des contours,
 	\item[2] l'image elle m\^{e}me dans le cas de dessins : contours lin\'{e}aires fins fonc\'{e}s sur fond clair,
@@ -119,11 +119,11 @@ On entend par fonctionnelle la generalisation des fonctions aux domaine des fonc
 \end{displaymath}
 avec $E_{\text{tot}} = E_{\text{int}} + E_{\text{ext}}$. En traduisant directement l'\'{e}quation pr\'{e}c\'{e}dente, on trouve l'\'{e}quation d'\'{e}quilibre suivante :
 \begin{displaymath}
-	\forall s\in[0,1],\quad 0 = \lambda_1 \gamma''(s) - \lambda_2 \gamma^{(4)}(s) + \lambda_3 \nabla(\|\nabla I\|^2)
+	\forall s\in[0,1],\quad 0 = \lambda_1 \gamma''(s) - \lambda_2 \gamma^{(4)}(s) + \lambda_3 \nabla(\|\nabla \text{I}\|^2)
 \end{displaymath}
 Avec cette formulation, on a une condition sur la courbe lorsqu'elle est d\'{e}j\`{a} sur le contour de l'objet, lorsqu'elle est stationnaire. On ne peut pas faire bouger la courbe \`{a} partir de cette \'{e}quation. On introduit alors un autre param\`{e}tre, le temps $t$, pour \'{e}crire une \'{e}quation d'\'{e}volution : 
 \begin{equation}\label{temporelContinu}
-	\forall s\in[0,1], t\in\mathbb{R}^{+},\quad \frac{\partial \gamma}{\partial t}(s,t) = \lambda_1 \frac{\partial^2 \gamma}{\partial s^2}(s,t) - \lambda_2 \frac{\partial^4 \gamma}{\partial s^4}(s,t) + \lambda_3 \nabla(\|\nabla I\|^2)(\gamma(s,t))
+	\forall s\in[0,1], t\in\mathbb{R}^{+},\quad \frac{\partial \gamma}{\partial t}(s,t) = \lambda_1 \frac{\partial^2 \gamma}{\partial s^2}(s,t) - \lambda_2 \frac{\partial^4 \gamma}{\partial s^4}(s,t) + \lambda_3 \nabla(\|\nabla \text{I}\|^2)(\gamma(s,t))
 \end{equation}
 On dispose donc de deux \'{e}quations scalaires pour d\'{e}crire l'\'{e}volution de la courbe, une pour chacune de ses composantes.
 
@@ -160,16 +160,16 @@ La discr\'{e}tisation temporelle se fait simplement en prenant la diff\'{e}rence
 \end{displaymath}
 Au total, on trouve pour chaque composante les \'{e}quations : 
 \begin{eqnarray}~\label{discreteSnake}
-	\frac{\gamma_{x}^{k}-\gamma_{x}^{k-1}}{\Delta t}=& (\lambda_1 D_2 -\lambda_2 D_4)\gamma_{x}^{k} + \lambda_3 \nabla(\|\nabla I\|^2)_{x}\\
-	\frac{\gamma_{y}^{k}-\gamma_{y}^{k-1}}{\Delta t}=& (\lambda_1 D_2 -\lambda_2 D_4)\gamma_{y}^{k} + \lambda_3 \nabla(\|\nabla I\|^2)_{y}
+	\frac{\gamma_{x}^{k}-\gamma_{x}^{k-1}}{\Delta t}=& (\lambda_1 D_2 -\lambda_2 D_4)\gamma_{x}^{k} + \lambda_3 \nabla(\|\nabla \text{I}\|^2)_{x}\\
+	\frac{\gamma_{y}^{k}-\gamma_{y}^{k-1}}{\Delta t}=& (\lambda_1 D_2 -\lambda_2 D_4)\gamma_{y}^{k} + \lambda_3 \nabla(\|\nabla \text{I}\|^2)_{y}
 \end{eqnarray}
-avec $\nabla(\|\nabla I\|^2)_{x}$ et $\nabla(\|\nabla I\|^2)_{y}$ les composantes selon $x$ et $y$ de $\nabla(\|\nabla I\|^2)$. Le syst\`{e}me d'\'{e}volution liant les deux instants $k$ et $k-1$ peut s'\'{e}crire : 
+avec $\nabla(\|\nabla \text{I}\|^2)_{x}$ et $\nabla(\|\nabla \text{I}\|^2)_{y}$ les composantes selon $x$ et $y$ de $\nabla(\|\nabla \text{I}\|^2)$. Le syst\`{e}me d'\'{e}volution liant les deux instants $k$ et $k-1$ peut s'\'{e}crire : 
 \begin{eqnarray}\label{evolutionSnakex}
-	(I+\Delta t (\lambda_2 D_4 - \lambda_1 D_2)) \gamma_{x}^{k} =&  (\gamma_{x}^{k-1} + \Delta t  \lambda_3 \nabla(\|\nabla I\|^2)_{x} )\\
+	(I_N+\Delta t (\lambda_2 D_4 - \lambda_1 D_2)) \gamma_{x}^{k} =&  (\gamma_{x}^{k-1} + \Delta t  \lambda_3 \nabla(\|\nabla \text{I}\|^2)_{x} )\\
 ~\label{evolutionSnakey}
-	(I+\Delta t (\lambda_2 D_4 - \lambda_1 D_2)) \gamma_{y}^{k} =&  (\gamma_{y}^{k-1} + \Delta t  \lambda_3 \nabla(\|\nabla I\|^2)_{y} )
+	(I_N+\Delta t (\lambda_2 D_4 - \lambda_1 D_2)) \gamma_{y}^{k} =&  (\gamma_{y}^{k-1} + \Delta t  \lambda_3 \nabla(\|\nabla \text{I}\|^2)_{y} )
 \end{eqnarray}
-avec $I$ la matrice identit\'{e}. On obtient donc un syst\`{e}me lin\'{e}aire pour chaque composante de la courbe.
+avec \textbf{$I_N$ la matrice identit\'{e} d'ordre $N$}. On obtient donc un syst\`{e}me lin\'{e}aire pour chaque composante de la courbe.
 
 %\subsection{Les ameliorations possible}
 %ballon (aborde dans le TP), gradient vector flow.
@@ -216,6 +216,8 @@ ou, si vous n'avez pas les droits n\'{e}cessaires, vous pouvez cloner le reposit
 	\textit{git clone http://git.code.sf.net/p/cimg/source CImg}
 \end{center}
 Remarque : \textit{git} est un gestionnaire de version. Les gestionnaires de versions servent \`{a} g\'{e}rer les versions d'un projet et de pouvoir revenir \`{a} touts moments \`{a} une version pr\'{e}c\'{e}dente pour pouvoir retrouver un code/version qui fonctionne. Je vous recommande fortement d'utiliser des gestionnaires de versions dans tout ce que vous faites. Par exemple, vous commencez un TP, vous cr\'{e}ez un repository que vous actualiserez tout au long de la s\'{e}ance de sorte \`{a} ce que vous puissiez retrouver une version qui fonctionne ou qui fait autre chose (une autre partie d'un exercice). Pour plus d'information concernant \textit{git}, je vous renvoie vers le \href{https://github.com/}{lien} ou un autre \href{http://rogerdudler.github.io/git-guide/}{lien}.
+
+\noindent \textbf{Remarque : la version actuelle de \textit{CImg} \'{e}tant diff\'{e}rente de celle utilis\'{e}e dans le code de la classe \textit{C\_imgMatrix}, le fichier \textit{CImg.h} correspondant \`{a} la version utilis\'{e}e dans le code \`{a} \'{e}t\'{e} mis sur le repository git du TP.}
 
 \clearpage
 \noindent Exemple de code pour charger une image \`{a} l'aide de la classe \textit{C\_imgMatrix} : 
