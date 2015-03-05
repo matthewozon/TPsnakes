@@ -22,7 +22,7 @@ add_executable(
 #Configuration de l'édition de liens
 target_link_libraries(
         snakes
-        gif # for gif images
+        #gif # for gif images
         tiff #for tiff images
         png #read png images
         X11 #needed by png (different on windows)
