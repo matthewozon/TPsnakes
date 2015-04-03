@@ -121,9 +121,9 @@ void C_snakes::buildD1(void)
     for(unsigned short i=0 ; i<S.C.size() ; i++)
     {
         //diag sup
-        if((i+1)<S.C.size()) D2(i,(unsigned short) (i+1)) = 1.0;
+        if((i+1)<S.C.size()) D1(i,(unsigned short) (i+1)) = 1.0;
         //diag inf
-        if(i>0) D2(i,(unsigned short) (i-1)) = -1.0;
+        if(i>0) D1(i,(unsigned short) (i-1)) = -1.0;
     }
     D1((unsigned short) 0,D1.endC) = -1.0;
     D1(D1.endL,(unsigned short) 0) = 1.0;
@@ -177,7 +177,7 @@ C_matrix<double> C_snakes::getXcoordinates(void)
     C_matrix<double> Xpos(S.C.size(),1);
     for(unsigned short i=0 ; i<S.C.size() ; i++)
     {
-        Xpos(i,(unsigned short)1) = S.C.at(i).x;
+        Xpos(i,(unsigned short)0) = S.C.at(i).x;
     }
     return Xpos;
 }
@@ -188,7 +188,7 @@ C_matrix<double> C_snakes::getYcoordinates(void)
     C_matrix<double> Ypos(S.C.size(),1);
     for(unsigned short i=0 ; i<S.C.size() ; i++)
     {
-        Ypos(i,(unsigned short)1) = S.C.at(i).y;
+        Ypos(i,(unsigned short)0) = S.C.at(i).y;
     }
     return Ypos;
 }
